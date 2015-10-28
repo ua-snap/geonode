@@ -500,7 +500,7 @@ def file_upload(filename, name=None, user=None, title=None, abstract=None,
 def upload(incoming, user=None, overwrite=False,
            keywords=(), category=None, regions=(),
            skip=True, ignore_errors=True,
-           verbosity=1, console=None, title=None, private=False):
+           verbosity=1, console=None, title=None, name=None, private=False):
     """Upload a directory of spatial data files to GeoNode
 
        This function also verifies that each layer is in GeoServer.
@@ -548,14 +548,25 @@ def upload(incoming, user=None, overwrite=False,
         msg = "Found %d potential layers." % number
         print >> console, msg
 
+    # Ensure name, if provided, matches a known GeoNode convention
+    if name is not None:
+        name = slugify(name).replace('-', '_')
+
     output = []
     for i, file_pair in enumerate(potential_files):
         basename, filename = file_pair
 
-        existing_layers = Layer.objects.filter(name=basename)
+        # If an explicit layer name is provided, filter that
+        # and not the autogen basename.
+        if name is not None:
+            existing_layers = Layer.objects.filter(name=name)
+        else:
+            existing_layers = Layer.objects.filter(name=basename)
 
         if existing_layers.count() > 0:
             existed = True
+            if verbosity > 1:
+                print >> console, "{0} existing layers were found.".format(existing_layers.count())
         else:
             existed = False
 
@@ -585,7 +596,8 @@ def upload(incoming, user=None, overwrite=False,
                                     keywords=keywords,
                                     category=category,
                                     regions=regions,
-                                    title=title
+                                    title=title,
+                                    name=name
                                     )
                 if not existed:
                     status = 'created'

@@ -90,6 +90,17 @@ class Command(BaseCommand):
                     if multiple imports are done in one command"""
         ),
         make_option(
+            '-n',
+            '--name',
+            dest='name',
+            default=None,
+            help="""The name for the
+                    imported layer(s). Will be the same for all imported layers
+                    if multiple imports are done in one command.  Use this
+                    if you need to update the title of a layer without creating
+                    a new layer implicitly from the updated title."""
+        ),
+        make_option(
             '-p',
             '--private',
             dest='private',
@@ -108,6 +119,7 @@ class Command(BaseCommand):
         category = options.get('category', None)
         private = options.get('private', False)
         title = options.get('title', None)
+        name = options.get('name', None)
 
         if verbosity > 0:
             console = self.stdout
@@ -143,6 +155,7 @@ class Command(BaseCommand):
                 category=category,
                 regions=regions,
                 title=title,
+                name=name,
                 private=private)
             output.extend(out)
 
