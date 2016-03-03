@@ -640,6 +640,42 @@ def map_download(request, mapid, template='maps/map_download.html'):
         "site": settings.SITEURL
     }))
 
+def immediate_map_download(request, mapid):
+    """
+    Download all the layers of a map as a batch
+    XXX To do, remove layer status once progress id done
+    This should be fix because
+    """
+    map_obj = _resolve_map(request, mapid, 'base.download_resourcebase', _PERMISSION_MSG_VIEW)
+
+    map_status = dict()
+    url = "%srest/process/batchDownload/launch/" % ogc_server_settings.LOCATION
+
+    def perm_filter(layer):
+        return request.user.has_perm(
+             'base.view_resourcebase',
+             obj=layer.get_self_resource())
+
+    mapJson = map_obj.json(perm_filter)
+
+    # we need to remove duplicate layers
+    j_map = json.loads(mapJson)
+    j_layers = j_map["layers"]
+    for j_layer in j_layers:
+        if(len([l for l in j_layers if l == j_layer])) > 1:
+                j_layers.remove(j_layer)
+    mapJson = json.dumps(j_map)
+
+    resp, content = http_client.request(url, 'POST', body=mapJson)
+
+    status = int(resp.status)
+
+    if status == 200:
+         return HttpResponse(content)
+    else:
+         raise Exception(
+                'Could not start the download of %s. Error was: %s' %
+                (map_obj.title, content))
 
 def map_download_check(request):
     """
