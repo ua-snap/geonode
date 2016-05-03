@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2012 OpenPlans
+# Copyright (C) 2016 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ from geonode.utils import http_client
 import tarfile
 
 from zipfile import ZipFile, is_zipfile
+
+from datetime import datetime
 
 logger = logging.getLogger('geonode.layers.utils')
 
@@ -504,7 +506,7 @@ def file_upload(filename, name=None, user=None, title=None, abstract=None,
             layer.regions.add(*regions_resolved)
 
     if date is not None:
-        layer.date = date
+        layer.date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         layer.save()
 
     return layer
@@ -513,10 +515,8 @@ def file_upload(filename, name=None, user=None, title=None, abstract=None,
 def upload(incoming, user=None, overwrite=False,
            keywords=(), category=None, regions=(),
            skip=True, ignore_errors=True,
-           verbosity=1, console=None, title=None,
-           date=None, private=False,
-           metadata_uploaded_preserve=False):
-
+           verbosity=1, console=None, title=None, date=None,
+           private=False, metadata_uploaded_preserve=False):
     """Upload a directory of spatial data files to GeoNode
 
        This function also verifies that each layer is in GeoServer.

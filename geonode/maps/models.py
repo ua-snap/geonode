@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2012 OpenPlans
+# Copyright (C) 2016 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,10 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import signals
-from django.utils import simplejson as json
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -385,7 +388,7 @@ class MapLayer(models.Model, GXPLayerBase):
         null=True,
         max_length=200,
         blank=True)
-    # The mimetype of the image format to use for tiles (image/png, image/jpeg,
+    # The content_type of the image format to use for tiles (image/png, image/jpeg,
     # image/gif...)
 
     name = models.CharField(_('name'), null=True, max_length=200)
