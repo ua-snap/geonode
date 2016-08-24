@@ -543,6 +543,7 @@ class MapLayersResource(CommonModelApi):
             layerObj = Layer.objects.filter(typename=maplayerObj.name)[0]
             layer = maplayerObj.layer_config()
             layer['id'] = layerObj.id
+            layer['distribution_url'] = layerObj.distribution_url
             layers.append(layer)
         bundle.data['layers'] = layers
         return bundle
